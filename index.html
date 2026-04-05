@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Сапрыкина FitSystem — Система, а не случайность</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #141414;
+      --bg-2:      #191919;
+      --glass-bg:  rgba(255,255,255,0.038);
+      --glass-bd:  rgba(255,255,255,0.08);
+      --text:      #f0f0f0;
+      --muted:     rgba(240,240,240,0.48);
+      --dim:       rgba(240,240,240,0.24);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Glassmorphism ── */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 0.5px solid var(--glass-bd);
+    }
+    .glass-hover {
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .glass-hover:hover {
+      background: rgba(255,255,255,0.065);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    /* ── Marquee ── */
+    .marquee-wrap { overflow: hidden; }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: ticker 38s linear infinite;
+      will-change: transform;
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Fade-in ── */
+    .fade {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.75s cubic-bezier(.22,1,.36,1), transform 0.75s cubic-bezier(.22,1,.36,1);
+    }
+    .fade.visible { opacity: 1; transform: translateY(0); }
+    .fade-d1 { transition-delay: 0.1s; }
+    .fade-d2 { transition-delay: 0.2s; }
+    .fade-d3 { transition-delay: 0.32s; }
+
+    /* ── Outline button ── */
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 0.5px solid rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.88);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      border-radius: 100px;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.55);
+      color: #fff;
+    }
+    .btn-ghost svg { transition: transform 0.3s; }
+    .btn-ghost:hover svg { transform: translateX(3px); }
+
+    /* ── Nav link ── */
+    .nav-link {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.48);
+      transition: color 0.25s;
+    }
+    .nav-link:hover { color: rgba(255,255,255,0.85); }
+
+    /* ── Health ring ── */
+    .ring-fill {
+      stroke-dasharray: 226;
+      stroke-dashoffset: 226;
+      transition: stroke-dashoffset 1.6s cubic-bezier(.22,1,.36,1);
+    }
+    .ring-fill.animate { stroke-dashoffset: 45; }
+
+    /* ── Bar chart ── */
+    .bar {
+      border-radius: 3px 3px 0 0;
+      transform-origin: bottom;
+      transform: scaleY(0);
+      transition: transform 1.2s cubic-bezier(.22,1,.36,1);
+    }
+    .bar.animate { transform: scaleY(1); }
+
+    /* ── Stat number counter ── */
+    .stat-val {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Section label ── */
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    /* ── Divider ── */
+    .line { height: 0.5px; background: var(--glass-bd); }
+
+    /* ── Mobile nav toggle ── */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: flex; }
+
+    @media (max-width: 640px) {
+      .hero-h1 { font-size: clamp(48px, 14vw, 80px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ NAV ═══ -->
+<header class="fixed top-0 inset-x-0 z-50 glass" role="banner">
+  <nav class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between" aria-label="Основная навигация">
+    <a href="#" class="text-xs font-semibold tracking-[0.22em] uppercase text-white/90" aria-label="На главную">
+      SAPRIKINA FITSYSTEM
+    </a>
+
+    <!-- Desktop links -->
+    <div class="hidden sm:flex items-center gap-8">
+      <a href="#services" class="nav-link">Форматы</a>
+      <a href="#approach" class="nav-link">Подход</a>
+      <a href="#contact" class="nav-link">Контакт</a>
+    </div>
+
+    <button class="btn-ghost hidden sm:inline-flex" aria-label="Записаться на консультацию">
+      Записаться
+    </button>
+
+    <!-- Mobile burger -->
+    <button id="burger" class="sm:hidden p-2 text-white/50 hover:text-white transition-colors" aria-label="Меню" aria-expanded="false" aria-controls="mobile-menu">
+      <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <line x1="0" y1="1" x2="20" y2="1"/>
+        <line x1="0" y1="7" x2="20" y2="7"/>
+        <line x1="0" y1="13" x2="20" y2="13"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="sm:hidden flex-col gap-4 px-6 pb-5 pt-1 border-t border-white/[0.06]" role="menu">
+    <a href="#services" class="nav-link block py-1" role="menuitem">Форматы</a>
+    <a href="#approach" class="nav-link block py-1" role="menuitem">Подход</a>
+    <a href="#contact"  class="nav-link block py-1" role="menuitem">Контакт</a>
+    <button class="btn-ghost mt-2 w-full justify-center">Записаться</button>
+  </div>
+</header>
+
+
+<!-- ═══════════════════════════════════════════ HERO ═══ -->
+<section id="hero" class="min-h-screen flex items-center pt-14" aria-label="Главный блок">
+  <div class="max-w-6xl mx-auto px-6 py-24 w-full">
+    <div class="grid lg:grid-cols-[1fr_340px] gap-12 xl:gap-20 items-center">
+
+      <!-- Left: copy -->
+      <div>
+        <p class="eyebrow mb-8 fade">Персональный тренер · Онлайн и Офлайн</p>
+
+        <h1 class="hero-h1 text-[clamp(52px,9vw,96px)] font-black leading-[0.92] tracking-tight text-white fade fade-d1" style="font-weight:900;">
+          ФИТНЕС<br>
+          <span style="color:rgba(255,255,255,0.32);">КАК</span><br>
+          СИСТЕМА
+        </h1>
+
+        <p class="mt-8 text-[13px] leading-7 text-white/58 max-w-sm fade fade-d2">
+          Научный подход к вашему телу. Тренировки и питание на основе физиологии, а не догадок.
+        </p>
+
+        <div class="mt-10 fade fade-d3">
+          <button class="btn-ghost" aria-label="Начать путь — записаться на консультацию">
+            Начать путь
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="2" y1="7" x2="12" y2="7"/>
+              <polyline points="8,3 12,7 8,11"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: data widgets -->
+      <div class="grid grid-cols-2 gap-3 fade fade-d2">
+
+        <!-- Health ring -->
+        <div class="glass glass-hover rounded-2xl p-5" role="img" aria-label="80% клиентов достигают своей цели">
+          <p class="eyebrow mb-4">Прогресс</p>
+          <div class="flex justify-center">
+            <svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+              <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
+              <!-- outer glow track -->
+              <circle id="ring" cx="36" cy="36" r="28" fill="none"
+                stroke="rgba(255,255,255,0.72)" stroke-width="6"
+                stroke-linecap="round"
+                class="ring-fill"
+                transform="rotate(-90 36 36)"/>
+            </svg>
+          </div>
+          <p class="text-center mt-3">
+            <span class="text-[22px] font-bold text-white stat-val">80%</span><br>
+            <span class="text-[10px] text-white/38 leading-5">клиентов достигают цели</span>
+          </p>
+        </div>
+
+        <!-- Bar chart -->
+        <div class="glass glass-hover rounded-2xl p-5" role="img" aria-label="Динамика прогресса за 12 недель">
+          <p class="eyebrow mb-4">Динамика</p>
+          <div class="flex items-end gap-1.5 h-14" aria-hidden="true">
+            <div id="b1" class="bar flex-1 bg-white/10" style="height:35%"></div>
+            <div id="b2" class="bar flex-1 bg-white/17" style="height:50%;transition-delay:.1s"></div>
+            <div id="b3" class="bar flex-1 bg-white/25" style="height:65%;transition-delay:.2s"></div>
+            <div id="b4" class="bar flex-1 bg-white/38" style="height:80%;transition-delay:.3s"></div>
+            <div id="b5" class="bar flex-1 bg-white/60" style="height:100%;transition-delay:.4s"></div>
+          </div>
+          <p class="text-[10px] text-white/38 mt-3">12 недель ведения</p>
+        </div>
+
+        <!-- Certificate badge – full width -->
+        <div class="glass glass-hover rounded-2xl p-5 col-span-2" role="img" aria-label="Сертификат FPA — Федерация фитнеса">
+          <div class="flex items-center gap-4">
+            <div class="w-9 h-9 flex-shrink-0 rounded-full border border-white/15 flex items-center justify-center" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l2.09 4.26L18.18 7l-3.09 3 .73 4.27L12 12.27l-3.82 2 .73-4.27L5.82 7l4.09-.74L12 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-[12px] font-medium text-white/70">Сертификат FPA</p>
+              <p class="text-[10px] text-white/38 mt-0.5">Федерация фитнеса · 2024</p>
+            </div>
+            <div class="ml-auto text-[10px] text-white/32 tracking-wider">ВЕРИФИЦИРОВАНО ✓</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════ MARQUEE ═══ -->
+<div class="marquee-wrap border-y border-white/[0.06] py-4" aria-label="Услуги и преимущества">
+  <div class="marquee-track" aria-hidden="true">
+    <!-- segment × 2 for seamless loop -->
+    <span class="mx-10 eyebrow" style="letter-spacing:.28em">СЕРТИФИКАТ FPA</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">РАСЧЕТ КБЖУ</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">ПЕРСОНАЛЬНЫЙ ПОДХОД</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">ГАЙД ПО ПИТАНИЮ</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">ОНЛАЙН ВЕДЕНИЕ</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">СОСТАВ ТЕЛА</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <!-- duplicate -->
+    <span class="mx-10 eyebrow">СЕРТИФИКАТ FPA</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">РАСЧЕТ КБЖУ</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">ПЕРСОНАЛЬНЫЙ ПОДХОД</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">ГАЙД ПО ПИТАНИЮ</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">ОНЛАЙН ВЕДЕНИЕ</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+    <span class="mx-10 eyebrow">СОСТАВ ТЕЛА</span>
+    <span class="mx-6 text-white/10 text-xs">•</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════ SERVICES ═══ -->
+<section id="services" class="py-28" aria-label="Форматы работы">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="mb-14 fade">
+      <p class="eyebrow mb-3">Форматы работы</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Выберите свой путь</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+
+      <!-- Офлайн -->
+      <article class="glass glass-hover rounded-2xl p-7 flex flex-col fade fade-d1" aria-label="Офлайн тренировки">
+        <p class="eyebrow mb-7">01 / Офлайн</p>
+        <h3 class="text-[18px] font-semibold text-white mb-3">Тренировки в зале</h3>
+        <p class="text-[13px] text-white/52 leading-7 mb-8 flex-1">
+          Персональные занятия под полным контролем тренера. Корректировка техники в реальном времени, прогрессивная нагрузка.
+        </p>
+        <div class="line mb-5"></div>
+        <ul class="space-y-3" aria-label="Включено">
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Оценка состава тела</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Программа тренировок</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Контроль техники</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Дневник тренировок</span><span class="text-white/65">✓</span>
+          </li>
+        </ul>
+      </article>
+
+      <!-- Онлайн — highlighted -->
+      <article class="rounded-2xl p-7 flex flex-col fade fade-d2 glass-hover"
+        style="background:rgba(255,255,255,0.06); border:0.5px solid rgba(255,255,255,0.14);"
+        aria-label="Онлайн тренировки">
+        <div class="flex items-center justify-between mb-7">
+          <p class="eyebrow">02 / Онлайн</p>
+          <span class="text-[9px] tracking-widest uppercase border border-white/15 text-white/35 px-2.5 py-1 rounded-full">Популярно</span>
+        </div>
+        <h3 class="text-[18px] font-semibold text-white mb-3">Ведение онлайн</h3>
+        <p class="text-[13px] text-white/52 leading-7 mb-8 flex-1">
+          Тренировки из любой точки мира. Видеосвязь, разбор техники, еженедельная корректировка плана и питания.
+        </p>
+        <div class="line mb-5"></div>
+        <ul class="space-y-3" aria-label="Включено">
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Видеосвязь</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Чат 24 / 7</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Расчет КБЖУ</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Еженедельный разбор</span><span class="text-white/65">✓</span>
+          </li>
+        </ul>
+      </article>
+
+      <!-- План -->
+      <article class="glass glass-hover rounded-2xl p-7 flex flex-col fade fade-d3" aria-label="Готовый план питания и тренировок">
+        <p class="eyebrow mb-7">03 / План</p>
+        <h3 class="text-[18px] font-semibold text-white mb-3">Готовый план</h3>
+        <p class="text-[13px] text-white/52 leading-7 mb-8 flex-1">
+          Индивидуальная программа питания и тренировок. Расчёт КБЖУ, гайд по питанию, готово к старту сразу.
+        </p>
+        <div class="line mb-5"></div>
+        <ul class="space-y-3" aria-label="Включено">
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Расчет КБЖУ</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Гайд по питанию</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>Программа на месяц</span><span class="text-white/65">✓</span>
+          </li>
+          <li class="flex justify-between text-[11px] text-white/45">
+            <span>PDF + таблицы</span><span class="text-white/65">✓</span>
+          </li>
+        </ul>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════ APPROACH ═══ -->
+<section id="approach" class="py-28 border-t border-white/[0.06]" aria-label="Принципы подхода">
+  <div class="max-w-6xl mx-auto px-6">
+
+    <div class="grid lg:grid-cols-2 gap-16 items-start">
+
+      <div>
+        <p class="eyebrow mb-4 fade">Научный подход</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight mb-6 fade fade-d1">
+          Физиология, а не мода
+        </h2>
+        <p class="text-[13px] text-white/55 leading-7 max-w-md fade fade-d2">
+          Каждая программа строится на анализе состава тела, уровне активности и индивидуальных целях. Никакого копирования чужих планов — только данные о вас.
+        </p>
+
+        <!-- stats row -->
+        <div class="grid grid-cols-3 gap-4 mt-12 fade fade-d3">
+          <div class="text-center">
+            <p class="text-[32px] font-black text-white stat-val">5+</p>
+            <p class="text-[10px] text-white/38 mt-1 leading-5">лет практики</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[32px] font-black text-white stat-val">200+</p>
+            <p class="text-[10px] text-white/38 mt-1 leading-5">клиентов</p>
+          </div>
+          <div class="text-center">
+            <p class="text-[32px] font-black text-white stat-val">94%</p>
+            <p class="text-[10px] text-white/38 mt-1 leading-5">остаются на 2-й месяц</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- principle list -->
+      <div class="space-y-3 fade fade-d2">
+        <div class="glass glass-hover rounded-xl p-5 flex gap-5 items-start">
+          <div class="w-7 h-7 rounded-full border border-white/12 flex-shrink-0 flex items-center justify-center text-[10px] text-white/30 mt-0.5">01</div>
+          <div>
+            <p class="text-[13px] font-medium text-white/80 mb-1">Оценка до старта</p>
+            <p class="text-[12px] text-white/35 leading-6">Измерение состава тела, анамнез, образ жизни — всё это до первой тренировки.</p>
+          </div>
+        </div>
+        <div class="glass glass-hover rounded-xl p-5 flex gap-5 items-start">
+          <div class="w-7 h-7 rounded-full border border-white/12 flex-shrink-0 flex items-center justify-center text-[10px] text-white/30 mt-0.5">02</div>
+          <div>
+            <p class="text-[13px] font-medium text-white/80 mb-1">Прогрессивная нагрузка</p>
+            <p class="text-[12px] text-white/50 leading-6">Программа растёт вместе с вами. Нет плато — есть система.</p>
+          </div>
+        </div>
+        <div class="glass glass-hover rounded-xl p-5 flex gap-5 items-start">
+          <div class="w-7 h-7 rounded-full border border-white/12 flex-shrink-0 flex items-center justify-center text-[10px] text-white/30 mt-0.5">03</div>
+          <div>
+            <p class="text-[13px] font-medium text-white/80 mb-1">Питание как инструмент</p>
+            <p class="text-[12px] text-white/50 leading-6">Расчёт КБЖУ под вашу цель: набор, сушка, поддержание — без голодания.</p>
+          </div>
+        </div>
+        <div class="glass glass-hover rounded-xl p-5 flex gap-5 items-start">
+          <div class="w-7 h-7 rounded-full border border-white/12 flex-shrink-0 flex items-center justify-center text-[10px] text-white/30 mt-0.5">04</div>
+          <div>
+            <p class="text-[13px] font-medium text-white/80 mb-1">Еженедельный анализ</p>
+            <p class="text-[12px] text-white/50 leading-6">Корректировка плана на основе данных, а не ощущений.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════ CTA ═══ -->
+<section id="contact" class="py-28" aria-label="Запись на консультацию">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="glass rounded-3xl p-12 md:p-16 text-center fade" style="border-color:rgba(255,255,255,0.1);">
+      <p class="eyebrow mb-6">Готовы начать?</p>
+      <h2 class="text-3xl md:text-5xl font-black text-white tracking-tight mb-5 leading-tight">
+        Первый шаг —<br>
+        <span style="color:rgba(255,255,255,0.42);">бесплатная</span> консультация
+      </h2>
+      <p class="text-[13px] text-white/55 max-w-sm mx-auto leading-7 mb-10">
+        20 минут, чтобы разобраться в вашей ситуации и выбрать подходящий формат.
+      </p>
+      <button class="btn-ghost mx-auto" aria-label="Записаться на бесплатную консультацию">
+        Записаться
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="2" y1="7" x2="12" y2="7"/>
+          <polyline points="8,3 12,7 8,11"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════ FOOTER ═══ -->
+<footer class="border-t border-white/[0.06] py-10" role="contentinfo">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <p class="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/50">SAPRIKINA FITSYSTEM</p>
+    <p class="text-[10px] text-white/30 tracking-wide">© 2024 · Все права защищены</p>
+    <div class="flex gap-6">
+      <a href="#" class="text-[11px] nav-link" aria-label="Instagram">Instagram</a>
+      <a href="#" class="text-[11px] nav-link" aria-label="Telegram">Telegram</a>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════ SCRIPTS ═══ -->
+<script>
+  // ── Intersection Observer for fade animations + widget triggers ──
+  const fadeEls = document.querySelectorAll('.fade');
+  const widgets = document.querySelectorAll('.bar, #ring');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  fadeEls.forEach(el => observer.observe(el));
+
+  // Widget observer (bars + ring animate once in view)
+  const widgetObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate');
+        widgetObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  widgets.forEach(el => widgetObserver.observe(el));
+
+  // ── Mobile burger ──
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  burger.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    burger.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Close mobile menu on link click
+  mobileMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // ── Close nav on outside click ──
+  document.addEventListener('click', e => {
+    if (!burger.contains(e.target) && !mobileMenu.contains(e.target)) {
+      mobileMenu.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>
+</body>
+</html>
