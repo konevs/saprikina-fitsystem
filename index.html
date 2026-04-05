@@ -1156,7 +1156,6 @@
 <!-- ═══════════════════════════════════════════ FOOTER CTA ══ -->
 <section id="contact" class="py-28 border-t border-white/[0.06]" aria-label="Запись на тренировку">
   <div class="max-w-3xl mx-auto px-6 text-center">
-    <p class="eyebrow mb-7 fade">Готовы начать?</p>
     <h2 class="text-3xl md:text-[52px] font-black text-white tracking-tight leading-[1.0] mb-6 fade fade-d1">
       Готовы к первой<br>
       <span style="color:rgba(255,255,255,0.32);">тренировке?</span>
@@ -1167,25 +1166,40 @@
 
     <div class="flex flex-col sm:flex-row gap-4 justify-center fade fade-d3">
       <!-- Telegram -->
-      <a href="https://t.me/masha140202" target="_blank" rel="noopener noreferrer" class="btn-social btn-social-tg" aria-label="Написать в Telegram @masha140202">
+      <button type="button" onclick="openContactModal('tg')" class="btn-social btn-social-tg" aria-label="Написать в Telegram @masha140202">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M22 2L11 13" stroke="var(--accent-dim)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="var(--accent-dim)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         Telegram
-      </a>
+      </button>
       <!-- Instagram -->
-      <a href="https://instagram.com/__masha.14__" target="_blank" rel="noopener noreferrer" class="btn-social" aria-label="Написать в Instagram __masha.14__">
+      <button type="button" onclick="openContactModal('ig')" class="btn-social" aria-label="Написать в Instagram __masha.14__">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <rect x="2" y="2" width="20" height="20" rx="5" stroke="rgba(255,255,255,0.32)" stroke-width="1.6"/>
           <circle cx="12" cy="12" r="4" stroke="rgba(255,255,255,0.32)" stroke-width="1.6"/>
           <circle cx="17.5" cy="6.5" r="1" fill="rgba(255,255,255,0.32)"/>
         </svg>
         Instagram
-      </a>
+      </button>
     </div>
   </div>
 </section>
+
+<!-- ═══════════════════════════ CONTACT MODAL ══ -->
+<div id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title"
+  style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="position:relative;background:#111;border:1px solid rgba(255,255,255,0.10);border-radius:20px;padding:44px 48px 40px;text-align:center;min-width:280px;max-width:90vw;">
+    <button type="button" onclick="closeContactModal()" aria-label="Закрыть"
+      style="position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,0.55);font-size:18px;transition:background 0.2s,color 0.2s;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <p id="contact-modal-label" style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:14px;"></p>
+    <p id="contact-modal-title" style="font-size:22px;font-weight:800;color:#fff;letter-spacing:0.01em;"></p>
+  </div>
+</div>
 
 
 <!-- ════════════════════════════════════════════ FOOTER ══ -->
@@ -1203,6 +1217,36 @@
 
 <!-- ═════════════════════════════════════════ SCRIPTS ══ -->
 <script>
+  // Contact modal
+  const contactModal = document.getElementById('contact-modal');
+  const contactLabel = document.getElementById('contact-modal-label');
+  const contactTitle = document.getElementById('contact-modal-title');
+
+  function openContactModal(type) {
+    if (type === 'tg') {
+      contactLabel.textContent = 'Telegram';
+      contactTitle.textContent = '@masha140202';
+    } else {
+      contactLabel.textContent = 'Instagram';
+      contactTitle.textContent = '__masha.14__';
+    }
+    contactModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeContactModal() {
+    contactModal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  contactModal.addEventListener('click', (e) => {
+    if (e.target === contactModal) closeContactModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeContactModal();
+  });
+
   // Fade + widget animations
   const fadeEls = document.querySelectorAll('.fade');
   const widgets = document.querySelectorAll('.bar, #ring');
